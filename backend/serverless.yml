@@ -1,0 +1,87 @@
+org: alexfn8
+app: citadel
+service: citadel
+
+frameworkVersion: '2 || 3'
+
+package:
+  patterns:
+  - '!node_modules/**'
+
+
+custom:
+
+  stage: ${sls:stage}
+  tableName: ${self:custom.stage}-citadels
+  pythonRequirements:
+    dockerizePip: true
+    layer:
+      name: citadel-${sls:stage}-layer
+      description: Base layer for python reqs
+      compatibleRuntimes:
+        - python3.8
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  memorySize: 512
+  stage: dev
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:DescribeTable
+          Resource:
+            - Fn::GetAtt: [ CitadelsTable, Arn]
+
+  environment:
+    CITADEL_TABLE: ${self:custom.tableName}
+
+plugins:
+  - serverless-python-requirements
+
+
+
+
+
+functions:
+  hello:
+    handler: main.handler
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
+
+
+
+
+resources:
+  Resources:
+    CitadelsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}

@@ -8,10 +8,16 @@
         },
         methods: {
             onSubmit() {
+                //https://stackoverflow.com/questions/41431322/how-to-convert-formdata-html5-object-to-json
                 const MyData = new FormData()
                 MyData.append('first', this.message)
                 MyData.append('second', this.mulMessage)
-                console.log(MyData.entries)
+                for (let value of MyData.entries()) {
+                    console.log(value)
+                }
+                //********** use MyData.get() to get the key of a fitting and then mess with the keys from there? Look up changing key names and then go from there */
+                console.log("***************************")
+
                 console.log(this.message)
                 let date = new Date()
                 console.log(date.toISOString())
@@ -19,6 +25,7 @@
                 console.log(JSON.stringify(this.mulMessage))
                 
                 let obj = this.mulMessage.split("\n")
+                console.log(obj) // this is already a JSON object here with 0 -> x being the keys? Not really Parse does not work
                 console.log(JSON.stringify(obj))
             }
         }

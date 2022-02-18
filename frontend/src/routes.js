@@ -1,6 +1,7 @@
 import Home from './views/Home.vue'
 import About from './views/About.vue'
 import NotFound from './views/NotFound.vue'
+import Form from './views/FormInput.vue'
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [
@@ -14,5 +15,6 @@ export const routes = [
     // which is lazy-loaded when the route is visited.
     // component: () => import('./views/About.vue')
   },
+  { path: '/form', component: Form, meta: { title: 'Form'}},
   { path: '/:path(.*)', component: NotFound },
 ]

@@ -4,17 +4,21 @@ from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from mangum import Mangum
 from fastapi.responses import JSONResponse
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 from datetime import datetime, timezone
 
-from api.api_v1 import api  #do I need to include this as api instead? Probably, was testing removing the . in .api.api_v1
+from api.api_v1 import api  
 
 class Citadel(BaseModel):
     PK: str
     SK: str
     date : str
+    name : str
+    system: str
+    submitter : str
+    fitting : List[str]
 
 app = FastAPI(title="Citadel App")
 app.include_router(api.router)
@@ -51,7 +55,7 @@ def create_user(newPK: Citadel):
 
     CITADEL_TABLE.put_item(Item=newPK.dict()) #Pydantic cast as dict 
     
-    #look at serverless logs
+    
     return newPK 
 
 @app.get("/users/{user_id}")

@@ -41,6 +41,11 @@ provider:
             - dynamodb:DescribeTable
           Resource:
             - Fn::GetAtt: [ CitadelsTable, Arn]
+            - Fn::Join:
+              - "/"
+              -
+                - Fn::GetAtt: [ CitadelsTable, Arn]
+                - "index/*"
 
   environment:
     CITADEL_TABLE: ${self:custom.tableName}
@@ -61,6 +66,7 @@ functions:
       - http:
           method: any
           path: /{proxy+}
+          cors: true
 
 
 
@@ -75,6 +81,8 @@ resources:
             AttributeType: S
           - AttributeName: SK
             AttributeType: S
+          - AttributeName: system
+            AttributeType: S
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
@@ -85,3 +93,15 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.tableName}
+
+        GlobalSecondaryIndexes:
+          - IndexName: CitadelPerSystem
+            KeySchema: 
+              - AttributeName: system
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
+              
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1

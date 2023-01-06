@@ -2,10 +2,10 @@ import Home from './views/Home.vue'
 import About from './views/About.vue'
 import NotFound from './views/NotFound.vue'
 import Form from './views/FormInput.vue'
+import DisplayCit from './views/DisplayCitadel.vue'
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [
-  { path: '/', component: Home, meta: { title: 'Home' } },
   {
     path: '/about',
     meta: { title: 'About' },
@@ -15,6 +15,7 @@ export const routes = [
     // which is lazy-loaded when the route is visited.
     // component: () => import('./views/About.vue')
   },
-  { path: '/form', component: Form, meta: { title: 'Form'}},
+  { path: '/', component: Form, meta: { title: 'Form'}},
+  { path: '/citadel', component: DisplayCit},
   { path: '/:path(.*)', component: NotFound },
 ]

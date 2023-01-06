@@ -123,6 +123,8 @@ def update_citadel_fit(updateFit: Citadel):
     if not updateFit:
         return JSONResponse(status_code=404, content={"message": "Not Recieved Correctly"})
 
+    updateFit.PK = "Cit#" + str(updateFit.PK)
+
     #updateFit.date = (datetime.now(timezone.utc).isoformat()) Do I want the date here even though it will be the SK too?
     updateFit.SK = (datetime.now(timezone.utc).isoformat())
 
@@ -133,11 +135,23 @@ def update_citadel_fit(updateFit: Citadel):
     
     return updateFit 
 
+#https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
 @app.get("/citadels/{citadel_id}")
 def get_citadel(citadel_id):
 
-    result = CITADEL_TABLE.get_item(Key={'PK': citadel_id, 'SK': 'METADATA'}) #listed as a string in yml, doing a string here?
-    item = result.get('Item')
+    citadel_search = "Cit#" + str(citadel_id)
+
+    #result = CITADEL_TABLE.get_item(Key={'PK': citadel_search, 'SK': 'METADATA'}) #listed as a string in yml, doing a string here?
+    #item = response.get('Item')
+
+    #ScanIndexForward=False returns the metadata sk instead of the newest date sk.
+    #Keep a query limit 1 or try to get a getItem where not eq to METADATA?
+    response = CITADEL_TABLE.query(
+        KeyConditionExpression=Key('PK').eq(citadel_search),
+        Limit = 2,
+        ScanIndexForward = False
+    )
+    item = response['Items'][1]
     if not item:
         return JSONResponse(status_code=404, content={"message": "Item Not Found"})
     return jsonable_encoder(item)#blah learn how to use boto3 and then json encode the response back
@@ -165,3 +179,4 @@ handler = Mangum(app)
 # setup UUID CITADEL COUNT, on the get item do a check for if it exsists and if not start one at 1 and go from there
 # Figure out a search method on citadel name? Or just on system name as given above and only do edits on displayCit page
 # Turn the locations GSI endpoint into a basic proof of concept page
+
